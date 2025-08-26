@@ -1,0 +1,477 @@
+
+
+// ===== GRAPHIQUES ET VISUALISATIONS =====
+
+// Conteneur principal pour les graphiques
+.chart-container {
+  position: relative;
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin: 0;
+    }
+    
+    .chart-controls {
+      display: flex;
+      gap: 0.5rem;
+      
+      button {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--gray-300);
+        background: white;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        
+        &.active {
+          background: var(--primary);
+          border-color: var(--primary);
+          color: white;
+        }
+        
+        &:hover {
+          border-color: var(--primary);
+          color: var(--primary);
+        }
+      }
+    }
+  }
+}
+
+// Graphique en barres animé
+.bar-chart {
+  display: flex;
+  align-items: end;
+  gap: 1rem;
+  height: 300px;
+  padding: 1rem 0;
+  
+  .bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    
+    .bar {
+      width: 100%;
+      max-width: 60px;
+      background: var(--gray-200);
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      .bar-fill {
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+        transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transition: left 0.6s;
+        }
+        
+        &.bar-primary {
+          background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+        }
+        
+        &.bar-success {
+          background: linear-gradient(180deg, var(--success), #059669);
+        }
+        
+        &.bar-warning {
+          background: linear-gradient(180deg, var(--warning), #d97706);
+        }
+        
+        &.bar-error {
+          background: linear-gradient(180deg, var(--error), #dc2626);
+        }
+        
+        &.bar-secondary {
+          background: linear-gradient(180deg, var(--secondary), var(--secondary-dark));
+        }
+      }
+      
+      &:hover .bar-fill::after {
+        left: 100%;
+      }
+      
+      .bar-value {
+        position: absolute;
+        top: -2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gray-900);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        opacity: 0;
+        transition: opacity 0.3s;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          border: 4px solid transparent;
+          border-top-color: var(--gray-900);
+        }
+      }
+      
+      &:hover .bar-value {
+        opacity: 1;
+      }
+    }
+    
+    .bar-label {
+      text-align: center;
+      
+      .bar-title {
+        font-weight: 600;
+        color: var(--gray-900);
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
+      
+      .bar-subtitle {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+      }
+    }
+  }
+}
+
+// Graphique circulaire (donut chart)
+.donut-chart {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  
+  .donut-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    
+    .donut-segment {
+      fill: none;
+      stroke-width: 20;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      
+      &:hover {
+        stroke-width: 25;
+        filter: brightness(1.1);
+      }
+      
+      &.segment-primary {
+        stroke: var(--primary);
+      }
+      
+      &.segment-success {
+        stroke: var(--success);
+      }
+      
+      &.segment-warning {
+        stroke: var(--warning);
+      }
+      
+      &.segment-error {
+        stroke: var(--error);
+      }
+      
+      &.segment-secondary {
+        stroke: var(--secondary);
+      }
+    }
+  }
+  
+  .donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    
+    .donut-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+    
+    .donut-label {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      font-weight: 600;
+    }
+  }
+}
+
+// Légende du graphique
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      
+      &.legend-primary { background: var(--primary); }
+      &.legend-success { background: var(--success); }
+      &.legend-warning { background: var(--warning); }
+      &.legend-error { background: var(--error); }
+      &.legend-secondary { background: var(--secondary); }
+    }
+    
+    .legend-text {
+      font-size: 0.875rem;
+      color: var(--gray-700);
+      font-weight: 500;
+    }
+  }
+}
+
+// Métriques KPI
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  
+  .kpi-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+    
+    .kpi-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+    
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+    
+    .kpi-label {
+      color: var(--gray-600);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    
+    .kpi-change {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      
+      &.positive {
+        color: var(--success);
+      }
+      
+      &.negative {
+        color: var(--error);
+      }
+      
+      i {
+        margin-right: 0.25rem;
+      }
+    }
+  }
+}
+
+// Graphique en ligne
+.line-chart {
+  height: 300px;
+  position: relative;
+  
+  .chart-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    .grid-line {
+      stroke: var(--gray-200);
+      stroke-width: 1;
+      stroke-dasharray: 2,2;
+    }
+  }
+  
+  .chart-line {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.2));
+  }
+  
+  .chart-area {
+    fill: url(#areaGradient);
+  }
+  
+  .chart-point {
+    fill: var(--primary);
+    stroke: white;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: r 0.2s;
+    
+    &:hover {
+      r: 6;
+    }
+  }
+}
+
+// Jauges de progression
+.progress-gauge {
+  position: relative;
+  width: 150px;
+  height: 75px;
+  margin: 0 auto;
+  
+  .gauge-bg {
+    stroke: var(--gray-200);
+    stroke-width: 10;
+    fill: none;
+  }
+  
+  .gauge-progress {
+    stroke: var(--primary);
+    stroke-width: 10;
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s ease-in-out;
+  }
+  
+  .gauge-value {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-900);
+  }
+}
+
+// Animations pour les graphiques
+@keyframes chartSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes barGrow {
+  from {
+    height: 0;
+  }
+}
+
+@keyframes pieSliceIn {
+  from {
+    stroke-dasharray: 0 251.2;
+  }
+}
+
+.chart-container {
+  animation: chartSlideIn 0.6s ease-out;
+}
+
+.bar-fill {
+  animation: barGrow 1s ease-out forwards;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .bar-chart {
+    height: 200px;
+    
+    .bar-item .bar {
+      max-width: 40px;
+    }
+  }
+  
+  .donut-chart {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .chart-legend {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

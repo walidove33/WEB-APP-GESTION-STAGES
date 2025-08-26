@@ -1,0 +1,145 @@
+
+
+
+<nav class="estbm-navbar" [class.scrolled]="isScrolled" role="navigation" aria-label="Main navigation">
+<div class="navbar-container" #navbar>
+<a [routerLink]="getDashboardRoute()" class="navbar-brand" (mouseenter)="onLogoHover()" (mouseleave)="onLogoLeave()">
+<div class="brand-logo" [@logoHover]="logoHoverState">
+<img src="/assets/logo.png" alt="EST Béni Mellal" class="logo-img" *ngIf="hasLogo" />
+<div class="brand-fallback" *ngIf="!hasLogo"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></div>
+</div>
+<div class="brand-text">
+<h1 title="EST Béni Mellal">EST Béni Mellal</h1>
+<span>Gestion des Stages</span>
+</div>
+</a>
+
+
+    <div class="navbar-nav" [class.active]="mobileMenuOpen">
+      <a [routerLink]="getDashboardRoute()" 
+         routerLinkActive="active" 
+         class="nav-link"
+         (click)="closeMobileMenu()">
+        <i class="bi bi-speedometer2"></i>
+        <span>Tableau de bord</span>
+      </a>
+
+      <ng-container *ngIf="currentUser?.role === 'ETUDIANT'">
+        <a routerLink="/student/new-stage" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-plus-circle"></i>
+          <span>Nouvelle demande</span>
+        </a>
+        <a routerLink="/student/stages" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-briefcase"></i>
+          <span>Mes stages</span>
+        </a>
+        <a routerLink="/student/soutenances" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-calendar-check"></i>
+          <span>Soutenances</span>
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="currentUser?.role === 'ENCADRANT'">
+        <a routerLink="/encadrant/planifications" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-calendar-week"></i>
+          <span>Planifications</span>
+        </a>
+        <a routerLink="/encadrant/rapports" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-file-earmark-text"></i>
+          <span>Rapports</span>
+        </a>
+        <a routerLink="/encadrant/soutenances" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-calendar-event"></i>
+          <span>Soutenances</span>
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="currentUser?.role === 'ADMIN'">
+        <a routerLink="/admin/encadrants" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-people"></i>
+          <span>Encadrants</span>
+        </a>
+        <a routerLink="/admin/admins" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-shield-check"></i>
+          <span>Administrateurs</span>
+        </a>
+        <a routerLink="/admin/planifications" 
+           routerLinkActive="active" 
+           class="nav-link"
+           (click)="closeMobileMenu()">
+          <i class="bi bi-calendar-week"></i>
+          <span>Planifications</span>
+        </a>
+      </ng-container>
+    </div>
+
+   <div class="navbar-user">
+<div class="user-info" (click)="toggleUserMenu()" [attr.aria-expanded]="userMenuOpen" tabindex="0" role="button" aria-haspopup="true" aria-controls="user-dropdown">
+<div class="user-avatar"><span>{{ getInitials(currentUser) }}</span></div>
+<div class="user-details">
+<span class="user-name">{{ getFullName(currentUser) }}</span>
+<span class="user-role">{{ getRoleLabel(currentUser?.role) }}</span>
+</div>
+<i class="bi bi-chevron-down dropdown-icon" [class.rotated]="userMenuOpen" aria-hidden="true"></i>
+</div>
+
+  <div id="user-dropdown" class="user-dropdown" [class.active]="userMenuOpen" [@fadeInOut]="userDropdownState" (animationdone)="onDropdownAnimationDone($event)" role="menu">
+<!-- existing dropdown content unchanged; keep same structure -->
+<div class="dropdown-header">
+<div class="dropdown-avatar"><span>{{ getInitials(currentUser) }}</span></div>
+<div class="dropdown-info">
+<div class="dropdown-name">{{ getFullName(currentUser) }}</div>
+<div class="dropdown-email">{{ currentUser?.email }}</div>
+</div>
+</div>
+        
+       <div class="dropdown-menu">
+<a href="#" class="dropdown-item" tabindex="0" role="menuitem"> <i class="bi bi-person" aria-hidden="true"></i><span>Mon Profil</span></a>
+<a href="#" class="dropdown-item" tabindex="0" role="menuitem"> <i class="bi bi-gear" aria-hidden="true"></i><span>Paramètres</span></a>
+<a href="#" class="dropdown-item" tabindex="0" role="menuitem"> <i class="bi bi-bell" aria-hidden="true"></i><span>Notifications</span></a>
+<a href="#" class="dropdown-item" tabindex="0" role="menuitem"> <i class="bi bi-question-circle" aria-hidden="true"></i><span>Aide & Support</span></a>
+</div>
+<div class="dropdown-footer">
+<button type="button" class="logout-button" (click)="logout($event)" [disabled]="isLoading"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span>{{ isLoading ? 'Déconnexion...' : 'Se déconnecter' }}</span></button>
+</div>
+</div>
+</div>
+    <button class="mobile-toggle" 
+            (click)="toggleMobileMenu()" 
+            [class.active]="mobileMenuOpen"
+            [@hamburgerAnimation]="hamburgerState"
+            aria-label="Menu de navigation">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <div class="mobile-backdrop" 
+       [class.active]="mobileMenuOpen || userMenuOpen" 
+       (click)="closeMenus()"></div>
+</nav>

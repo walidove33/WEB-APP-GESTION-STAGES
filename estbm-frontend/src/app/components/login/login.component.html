@@ -1,0 +1,114 @@
+
+
+    <div class="login-layout">
+  <div class="login-background">
+    <div class="bg-pattern"></div>
+    <div class="bg-gradient"></div>
+  </div>
+  
+  <div class="login-container">
+    <div class="login-card animate-scaleIn">
+      <div class="login-header">
+        <div class="logo-section">
+          <div class="logo-circle">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+          <h1 class="app-title">Gestion des Stages</h1>
+          <p class="institution-name">École Supérieure de Technologie</p>
+          <!-- <p class="ministry-label">Ministère de l'Éducation Nationale - Royaume du Maroc</p> -->
+        </div>
+      </div>
+
+      <div class="login-body">
+        <h2 class="form-title">Connexion</h2>
+        
+        <div class="alert alert-danger modern-alert" *ngIf="errorMessage" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form">
+          <div class="form-group">
+            <label for="email" class="form-label">
+              <i class="bi bi-envelope me-2"></i>
+              Adresse email
+            </label>
+            <input 
+              type="email" 
+              class="form-control modern-input" 
+              id="email" 
+              name="email"
+              [(ngModel)]="credentials.email"
+              required
+              #email="ngModel"
+              placeholder="votre.email@est.ac.ma"
+              [class.is-invalid]="email.invalid && email.touched">
+            <div class="invalid-feedback" *ngIf="email.invalid && email.touched">
+              Veuillez saisir une adresse email valide
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">
+              <i class="bi bi-lock me-2"></i>
+              Mot de passe
+            </label>
+            <div class="password-input-group">
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                class="form-control modern-input" 
+                id="password" 
+                name="password"
+                [(ngModel)]="credentials.password"
+                required
+                #password="ngModel"
+                placeholder="Votre mot de passe"
+                [class.is-invalid]="password.invalid && password.touched">
+              <button 
+                type="button" 
+                class="password-toggle"
+                (click)="togglePassword()">
+                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+              </button>
+            </div>
+            <div class="invalid-feedback" *ngIf="password.invalid && password.touched">
+              Le mot de passe est requis
+            </div>
+          </div>
+
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="rememberMe" [(ngModel)]="rememberMe" name="rememberMe">
+            <label class="form-check-label" for="rememberMe">
+              Se souvenir de moi
+            </label>
+          </div>
+
+          <button 
+            type="submit" 
+            class="btn btn-primary btn-login" 
+            [disabled]="loginForm.invalid || loading">
+            <span *ngIf="loading" class="spinner me-2"></span>
+            <i class="bi bi-box-arrow-in-right me-2" *ngIf="!loading"></i>
+            {{ loading ? 'Connexion...' : 'Se connecter' }}
+          </button>
+        </form>
+
+        <div class="register-link">
+          <p class="text-muted">
+            Première connexion ?
+            <a routerLink="/register" class="link-primary">
+              Créer un compte étudiant
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div class="login-footer">
+        <p class="footer-text">
+          <i class="bi bi-shield-check me-1"></i>
+          Connexion sécurisée - Données protégées
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,151 @@
+<!-- src/app/components/student/stage-list/stage-list.component.html -->
+<app-navbar></app-navbar>
+
+<div class="list-layout">
+  <!-- Header & Actions -->
+  <div class="list-header card mb-3 p-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h1><i class="bi bi-list-ul me-2"></i>Mes Stages</h1>
+        <p>Historique complet de vos demandes</p>
+      </div>
+      <div>
+        <a routerLink="/student/new-stage" class="btn btn-primary me-2">
+          <i class="bi bi-plus-circle"></i> Nouveau Stage
+        </a>
+        <a routerLink="/student/dashboard" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Retour
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section card mb-3 p-3">
+    <div class="row g-3">
+      <div class="col-md-5">
+        <label class="form-label"><i class="bi bi-search me-1"></i>Rechercher</label>
+        <input type="text" class="form-control"
+               placeholder="Sujet ou entreprise..."
+               [(ngModel)]="searchTerm"
+               (input)="filterStages()">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label"><i class="bi bi-funnel me-1"></i>Statut</label>
+        <select class="form-select"
+                [(ngModel)]="statusFilter"
+                (change)="filterStages()">
+          <option value="">Tous</option>
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="VALIDE">Validé</option> <!-- Corrigé: APPROUVE → VALIDE -->
+          <option value="REFUSE">Refusé</option> <!-- Corrigé: REJETE → REFUSE -->
+          <option value="EN_COURS">En cours</option>
+          <option value="TERMINE">Terminé</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <span>{{ filteredStages.length }} / {{ stages.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste -->
+  <div class="content-section card mb-3">
+    <div class="card-header">
+      <h3><i class="bi bi-briefcase me-2"></i>Vos Stages</h3>
+    </div>
+    <div class="card-body">
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border"></div>
+        <p>Chargement...</p>
+      </div>
+
+      <!-- Empty -->
+      <div *ngIf="!loading && stages.length === 0" class="text-center py-5">
+        <i class="bi bi-briefcase fs-1"></i>
+        <h4>Aucun stage</h4>
+        <a routerLink="/student/new-stage" class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i> Créer une demande
+        </a>
+      </div>
+
+      <!-- No Results -->
+      <div *ngIf="!loading && stages.length > 0 && filteredStages.length === 0" class="text-center py-5">
+        <i class="bi bi-search fs-1"></i>
+        <h4>Aucun résultat</h4>
+        <button class="btn btn-outline-primary" (click)="searchTerm=''; statusFilter=''; filterStages()">
+          <i class="bi bi-arrow-clockwise"></i> Réinitialiser
+        </button>
+      </div>
+
+      <!-- Grille des stages -->
+      <div *ngIf="!loading && filteredStages.length > 0" class="row g-3">
+        <div *ngFor="let stage of filteredStages" class="col-md-6">
+          <div class="card h-100 p-3">
+            <div class="d-flex justify-content-between">
+              <h5>{{ stage.sujet }}</h5>
+              <span class="badge" [ngClass]="getStatusClass(stage.etat)">
+                {{ getStatusText(stage.etat) }}
+              </span>
+            </div>
+            <p class="text-muted mb-1">#{{ stage.id }}</p>
+            <p><strong>Entreprise :</strong> {{ stage.entreprise }}</p>
+            <p><strong>Filière :</strong> {{ stage.filiere }}</p>
+            <p><strong>Période :</strong>
+              {{ stage.dateDebut | date:'dd/MM/yyyy' }} -
+              {{ stage.dateFin   | date:'dd/MM/yyyy' }}
+            </p>
+            <div *ngIf="stage.note" class="alert alert-secondary">
+              <strong>Note encadrant :</strong> {{ stage.note }}
+            </div>
+           <div class="d-flex gap-2 mt-auto">
+  <button class="btn btn-sm btn-outline-primary"
+          (click)="downloadConvention(stage.id)"
+          [disabled]="stage.etat === 'EN_ATTENTE_VALIDATION' || stage.etat === 'REFUSE'">
+    Convention
+  </button>
+  <button class="btn btn-sm btn-outline-secondary"
+          (click)="downloadAssurance(stage.id)"
+          [disabled]="stage.etat === 'EN_ATTENTE_VALIDATION' || stage.etat === 'REFUSE'">
+    Assurance
+  </button>
+  <button class="btn btn-sm btn-success"
+          (click)="uploadReport(stage.id)"
+          [disabled]="stage.etat !== 'ACCEPTE' && stage.etat !== 'EN_COURS'">
+    Rapport
+  </button>
+</div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Résumé -->
+  <div *ngIf="!loading && stages.length>0" class="summary-section card p-3">
+    <div class="row text-center">
+      <div class="col">
+        <i class="bi bi-clock-history fs-2"></i>
+        <div>{{ totalEnAttente }}</div>
+        <small>En attente</small>
+      </div>
+      <div class="col">
+        <i class="bi bi-check-circle fs-2 text-success"></i>
+        <div>{{ totalApprouve }}</div>
+        <small>Validés</small> <!-- Corrigé: Approuvés → Validés -->
+      </div>
+      <div class="col">
+        <i class="bi bi-x-circle fs-2 text-danger"></i>
+        <div>{{ totalRejete }}</div>
+        <small>Refusés</small> <!-- Corrigé: Rejetés → Refusés -->
+      </div>
+      <div class="col">
+        <i class="bi bi-briefcase fs-2 text-primary"></i>
+        <div>{{ totalEnCours }}</div>
+        <small>En cours</small>
+      </div>
+    </div>
+  </div>
+</div>

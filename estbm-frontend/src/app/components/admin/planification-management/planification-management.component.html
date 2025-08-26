@@ -1,0 +1,378 @@
+<app-navbar></app-navbar>
+
+<div class="planification-layout">
+  <div class="planification-container">
+    <!-- Header -->
+    <div class="planification-header">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>
+            <i class="bi bi-calendar-event me-3"></i>
+            Gestion des Planifications de Soutenance
+          </h1>
+          <p>Organisez et planifiez les soutenances de stage</p>
+        </div>
+        <div class="header-actions">
+          <a routerLink="/admin/dashboard" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour au tableau de bord
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="planification-grid">
+      <!-- Formulaire de création -->
+      <div class="planification-card form-card">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-plus-circle"></i>
+          </div>
+          <div class="header-content">
+            <h3>Créer une Planification</h3>
+            <p>Nouvelle planification de soutenance</p>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <form #planifForm="ngForm" (ngSubmit)="createPlanification()" class="modern-form" name="planifForm" >
+            <div class="form-group">
+              <label for="dateSoutenance" class="form-label">
+                <i class="bi bi-calendar-date me-2"></i>
+                Date de soutenance *
+              </label>
+              <input
+                id="dateSoutenance" 
+                name="dateSoutenance"
+                type="date"
+                class="form-control modern-input"
+                [(ngModel)]="newPlanification.dateSoutenance"
+                [min]="getMinDate()"
+                required
+                #dateSoutenance="ngModel"
+                [class.is-invalid]="dateSoutenance.invalid && dateSoutenance.touched">
+              <div *ngIf="dateSoutenance.invalid && dateSoutenance.touched" class="invalid-feedback">
+                La date de soutenance est requise
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="encadrant" class="form-label">
+                <i class="bi bi-person-badge me-2"></i>
+                Encadrant responsable *
+              </label>
+            <!-- exemple pour encadrant -->
+<select id="encadrant" name="encadrant" class="form-control modern-input"
+        [(ngModel)]="newPlanification.encadrant"
+        [ngModelOptions]="{standalone: false}"
+        required #encadrant="ngModel" [class.is-invalid]="encadrant.invalid && encadrant.touched">
+  <option [ngValue]="null">Sélectionnez un encadrant</option>
+  <option *ngFor="let enc of encadrants" [ngValue]="enc">
+    {{ enc.prenom }} {{ enc.nom }} <span *ngIf="enc.specialite"> - {{enc.specialite}}</span>
+  </option>
+</select>
+
+              <div *ngIf="encadrant.invalid && encadrant.touched" class="invalid-feedback">
+                L'encadrant est requis
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="departement" class="form-label">
+                  <i class="bi bi-building me-2"></i>
+                  Département *
+                </label>
+                <select
+                  id="departement" 
+                  name="departement"
+                  class="form-control modern-input"
+                  [(ngModel)]="newPlanification.departement.id"
+                  required
+                  #departement="ngModel"
+                  [class.is-invalid]="departement.invalid && departement.touched">
+                  <option value="0">Sélectionnez un département</option>
+                  <option *ngFor="let dep of departements" [value]="dep.id">
+                    {{ dep.nom }}
+                  </option>
+                </select>
+                <div *ngIf="departement.invalid && departement.touched" class="invalid-feedback">
+                  Le département est requis
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="classeGroupe" class="form-label">
+                  <i class="bi bi-people me-2"></i>
+                  Classe/Groupe *
+                </label>
+                <select
+                  id="classeGroupe" 
+                  name="classeGroupe"
+                  class="form-control modern-input"
+                  [(ngModel)]="newPlanification.classeGroupe.id"
+                  required
+                  #classeGroupe="ngModel"
+                  [class.is-invalid]="classeGroupe.invalid && classeGroupe.touched">
+                  <option value="0">Sélectionnez une classe</option>
+                  <option *ngFor="let grp of classGroups" [value]="grp.id">
+                    {{ grp.nom }}
+                  </option>
+                </select>
+                <div *ngIf="classeGroupe.invalid && classeGroupe.touched" class="invalid-feedback">
+                  La classe est requise
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="anneeScolaire" class="form-label">
+                <i class="bi bi-calendar-range me-2"></i>
+                Année scolaire *
+              </label>
+              <select
+                id="anneeScolaire" 
+                name="anneeScolaire"
+                class="form-control modern-input"
+                [(ngModel)]="newPlanification.anneeScolaire.id"
+                required
+                #anneeScolaire="ngModel"
+                [class.is-invalid]="anneeScolaire.invalid && anneeScolaire.touched">
+                <option value="0">Sélectionnez une année</option>
+                <option *ngFor="let annee of anneesScolaires" [value]="annee.id">
+                  {{ annee.libelle }}
+                </option>
+              </select>
+              <div *ngIf="anneeScolaire.invalid && anneeScolaire.touched" class="invalid-feedback">
+                L'année scolaire est requise
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-create"
+              [disabled]="planifForm.invalid || creating">
+              <span *ngIf="creating" class="spinner me-2"></span>
+              <i *ngIf="!creating" class="bi bi-plus-circle me-2"></i>
+              {{ creating ? 'Création en cours...' : 'Créer la Planification' }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Liste des planifications -->
+      <div class="planification-card list-card">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-calendar-check"></i>
+          </div>
+          <div class="header-content">
+            <h3>Planifications Existantes</h3>
+            <p>{{ planifications.length }} planification(s) créée(s)</p>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <!-- Loading state -->
+          <div *ngIf="loading" class="loading-state">
+            <app-loading size="md" message="Chargement des planifications..."></app-loading>
+          </div>
+
+          <!-- Empty state -->
+          <div *ngIf="!loading && planifications.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-calendar-x"></i>
+            </div>
+            <h4>Aucune planification</h4>
+            <p>Commencez par créer votre première planification</p>
+          </div>
+
+          <!-- Liste des planifications -->
+          <div *ngIf="!loading && planifications.length > 0" class="planifications-list">
+            <div *ngFor="let planif of planifications; let i = index" 
+                 class="planification-item"
+                 [style.animation-delay]="i * 100 + 'ms'">
+              
+              <div class="planif-header">
+                <div class="planif-date">
+                  <i class="bi bi-calendar-event"></i>
+                  <span>{{ planif.dateSoutenance | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="planif-actions">
+                  <button class="btn btn-sm btn-outline-primary" 
+                          (click)="viewPlanificationDetails(planif)"
+                          title="Voir les détails">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" 
+                          (click)="deletePlanification(planif.id)"
+                          title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="planif-details">
+                <div class="detail-item">
+                  <i class="bi bi-person-badge"></i>
+                  <span>{{ getEncadrantName(planif.encadrant) }}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="bi bi-building"></i>
+                  <span>{{ planif.departement.nom }}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="bi bi-people"></i>
+                  <span>{{ planif.classeGroupe.nom }} - {{ planif.anneeScolaire.libelle }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Détails de planification -->
+    <div *ngIf="selectedPlanification" class="details-section">
+      <div class="details-card">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-list-check"></i>
+          </div>
+          <div class="header-content">
+            <h3>Créneaux de Soutenance</h3>
+            <p>{{ selectedPlanification.dateSoutenance | date:'dd/MM/yyyy' }} - {{ getEncadrantName(selectedPlanification.encadrant) }}</p>
+          </div>
+          <button class="btn btn-primary" (click)="openDetailModal()">
+            <i class="bi bi-plus-lg me-2"></i>
+            Ajouter un créneau
+          </button>
+        </div>
+        
+        <div class="card-body">
+          <!-- Loading details -->
+          <div *ngIf="loadingDetails" class="loading-state">
+            <app-loading size="sm" message="Chargement des créneaux..."></app-loading>
+          </div>
+
+          <!-- Empty details -->
+          <div *ngIf="!loadingDetails && planificationDetails.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-clock"></i>
+            </div>
+            <h5>Aucun créneau</h5>
+            <p>Ajoutez des créneaux de soutenance pour cette planification</p>
+          </div>
+
+          <!-- Liste des créneaux -->
+          <div *ngIf="!loadingDetails && planificationDetails.length > 0" class="details-list">
+            <div *ngFor="let detail of planificationDetails" class="detail-item-card">
+              <div class="time-slot">
+                <i class="bi bi-clock"></i>
+                <span>{{ formatTime(detail.heureDebut) }} - {{ formatTime(detail.heureFin) }}</span>
+              </div>
+              <div class="detail-info">
+                <h6>{{ detail.sujet }}</h6>
+                <p>Étudiant: {{ detail.etudiant.prenom }} {{ detail.etudiant.nom }}</p>
+              </div>
+              <div class="detail-actions">
+                <button class="btn btn-sm btn-outline-secondary" title="Modifier">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'ajout de créneau -->
+<div *ngIf="showDetailModal" class="modal-overlay" (click)="closeDetailModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="bi bi-clock me-2"></i>
+        Ajouter un Créneau
+      </div>
+      <button class="modal-close" (click)="closeDetailModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <form (ngSubmit)="addDetailToPlanification()" #detailForm="ngForm">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-journal-text me-2"></i>
+            Sujet de soutenance *
+          </label>
+          <input
+            type="text"
+            class="form-control modern-input"
+            [(ngModel)]="newDetail.sujet"
+            name="sujet"
+            required
+            placeholder="Sujet du stage à soutenir">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-clock me-2"></i>
+              Heure de début *
+            </label>
+            <input
+              type="time"
+              class="form-control modern-input"
+              [(ngModel)]="newDetail.heureDebut"
+              name="heureDebut"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-clock-fill me-2"></i>
+              Heure de fin *
+            </label>
+            <input
+              type="time"
+              class="form-control modern-input"
+              [(ngModel)]="newDetail.heureFin"
+              name="heureFin"
+              required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-person me-2"></i>
+            Étudiant *
+          </label>
+          <select
+            class="form-control modern-input"
+            [(ngModel)]="newDetail.etudiant.id"
+            name="etudiantId"
+            required>
+            <option value="0">Sélectionnez un étudiant</option>
+            <!-- TODO: Load students based on selected class/department -->
+          </select>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeDetailModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!detailForm.valid">
+            <i class="bi bi-check-lg me-2"></i>
+            Ajouter le créneau
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

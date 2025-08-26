@@ -1,0 +1,231 @@
+<app-navbar></app-navbar>
+
+<div class="ma-planification-layout" (keydown)="onKeyDown($event)">
+  <div class="ma-planification-container">
+    
+    <!-- Header Section -->
+    <div class="ma-planification-header animate-fadeIn">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>
+            <i class="bi bi-calendar-check me-3"></i>
+            Ma Planification de Soutenance
+          </h1>
+          <p>Consultez vos créneaux de soutenance programmés et préparez-vous</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline-secondary" (click)="refreshData()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Actualiser
+          </button>
+          <a routerLink="/student/dashboard" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour au tableau de bord
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Soutenance Highlight -->
+    <div *ngIf="nextSoutenance" class="next-soutenance-section animate-slideInDown">
+      <app-card 
+        title="Prochaine Soutenance"
+        subtitle="Votre prochaine soutenance programmée"
+        headerIcon="bi-star-fill"
+        variant="warning"
+        class="next-soutenance-card">
+        
+        <div class="next-soutenance-content">
+          <div class="soutenance-date">
+            <div class="date-circle">
+              <span class="day">{{ nextSoutenance.date | date:'dd' }}</span>
+              <span class="month">{{ nextSoutenance.date | date:'MMM' }}</span>
+            </div>
+            <div class="date-details">
+              <h4>{{ formatDate(nextSoutenance.date) }}</h4>
+              <p class="time-slot">
+                <i class="bi bi-clock me-2"></i>
+                {{ getTimeRange(nextSoutenance) }}
+              </p>
+            </div>
+          </div>
+          
+          <div class="soutenance-details">
+            <h5>{{ nextSoutenance.sujet }}</h5>
+            <div class="countdown">
+              <i class="bi bi-hourglass-split me-2"></i>
+              <span>{{ getSoutenanceStatus(nextSoutenance) }}</span>
+            </div>
+          </div>
+          
+          <div class="soutenance-actions">
+            <button class="btn btn-primary" (click)="prepareSoutenance(nextSoutenance)">
+              <i class="bi bi-book me-2"></i>
+              Préparer
+            </button>
+            <button class="btn btn-outline-secondary" (click)="addToCalendar(nextSoutenance)">
+              <i class="bi bi-calendar-plus me-2"></i>
+              Calendrier
+            </button>
+            <button class="btn btn-outline-info" (click)="downloadSoutenanceInfo(nextSoutenance)">
+              <i class="bi bi-download me-2"></i>
+              Infos
+            </button>
+          </div>
+        </div>
+      </app-card>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section animate-slideInLeft">
+      <div class="stats-grid">
+        <app-card 
+          title="Total"
+          headerIcon="bi-calendar-event"
+          variant="primary"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Soutenances</div>
+          </div>
+        </app-card>
+
+        <app-card 
+          title="À venir"
+          headerIcon="bi-calendar-check"
+          variant="success"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.upcoming }}</div>
+            <div class="stat-label">Prochaines</div>
+          </div>
+        </app-card>
+
+        <app-card 
+          title="Aujourd'hui"
+          headerIcon="bi-calendar-day"
+          variant="warning"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.today }}</div>
+            <div class="stat-label">Aujourd'hui</div>
+          </div>
+        </app-card>
+
+        <app-card 
+          title="Terminées"
+          headerIcon="bi-calendar-x"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.past }}</div>
+            <div class="stat-label">Passées</div>
+          </div>
+        </app-card>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content animate-slideInRight">
+      <app-data-table
+        [data]="soutenances"
+        [columns]="columns"
+        [loading]="loading"
+        title="Mes Créneaux de Soutenance"
+        subtitle="Planning complet de vos soutenances de stage"
+        [searchable]="true"
+        [sortable]="true"
+        [showPagination]="true"
+        [pageSize]="10"
+        emptyTitle="Aucune soutenance programmée"
+        emptyMessage="Vous n'avez pas encore de créneaux de soutenance assignés"
+        emptyIcon="bi-calendar-x">
+
+        <!-- Custom templates -->
+        <ng-template #dateTemplate let-soutenance let-value="value">
+          <div class="date-cell">
+            <div class="date-main">
+              <i class="bi bi-calendar-event me-2"></i>
+              {{ formatDate(value) }}
+            </div>
+            <small class="date-weekday">{{ value | date:'EEEE':'fr' | titlecase }}</small>
+          </div>
+        </ng-template>
+
+        <ng-template #timeTemplate let-soutenance>
+          <div class="time-cell">
+            <div class="time-badge">
+              <i class="bi bi-clock me-1"></i>
+              {{ getTimeRange(soutenance) }}
+            </div>
+            <small class="time-duration">
+              {{ getDuration(soutenance.heureDebut, soutenance.heureFin) }}
+            </small>
+          </div>
+        </ng-template>
+
+        <ng-template #statusTemplate let-soutenance>
+          <span class="badge" [ngClass]="getSoutenanceStatusClass(soutenance)">
+            <i class="bi" [ngClass]="{
+              'bi-check-circle': getSoutenanceStatusClass(soutenance) === 'badge-secondary',
+              'bi-clock': getSoutenanceStatusClass(soutenance) === 'badge-warning',
+              'bi-calendar-event': getSoutenanceStatusClass(soutenance) === 'badge-primary'
+            }"></i>
+            {{ getSoutenanceStatus(soutenance) }}
+          </span>
+        </ng-template>
+
+        <!-- Header actions -->
+        <div slot="header-actions">
+          <button class="btn btn-outline-primary" (click)="addToCalendar(nextSoutenance!)" *ngIf="nextSoutenance">
+            <i class="bi bi-calendar-plus me-2"></i>
+            Ajouter au calendrier
+          </button>
+          <button class="btn btn-primary" (click)="refreshData()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Actualiser
+          </button>
+        </div>
+      </app-data-table>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions animate-fadeIn" style="animation-delay: 0.6s">
+      <h2 class="section-title">
+        <i class="bi bi-lightning me-2"></i>
+        Actions rapides
+      </h2>
+      
+      <div class="actions-grid">
+        <div class="action-card" (click)="addToCalendar(nextSoutenance!)" *ngIf="nextSoutenance">
+          <div class="action-icon">
+            <i class="bi bi-calendar-plus"></i>
+          </div>
+          <div class="action-content">
+            <h4>Ajouter au calendrier</h4>
+            <p>Synchronisez vos soutenances avec Google Calendar</p>
+          </div>
+        </div>
+
+        <div class="action-card" (click)="prepareSoutenance(nextSoutenance!)" *ngIf="nextSoutenance">
+          <div class="action-icon">
+            <i class="bi bi-book"></i>
+          </div>
+          <div class="action-content">
+            <h4>Guide de préparation</h4>
+            <p>Consultez les conseils pour réussir votre soutenance</p>
+          </div>
+        </div>
+
+        <div class="action-card" (click)="downloadSoutenanceInfo(nextSoutenance!)" *ngIf="nextSoutenance">
+          <div class="action-icon">
+            <i class="bi bi-download"></i>
+          </div>
+          <div class="action-content">
+            <h4>Télécharger les infos</h4>
+            <p>Obtenez un PDF avec tous les détails de vos soutenances</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

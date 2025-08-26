@@ -1,0 +1,1130 @@
+<!-- <app-navbar></app-navbar>
+
+<div class="dashboard-layout">
+  <div class="dashboard-container">
+    <div class="dashboard-header animate-fadeIn">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>
+            <i class="bi bi-speedometer2 me-3"></i>
+            Tableau de bord administrateur
+          </h1>
+          <p>Vue d'ensemble complète de la gestion des stages</p>
+        </div>
+        <div class="header-date">
+          <i class="bi bi-calendar-event"></i>
+          <span>{{ currentDate | date:'EEEE d MMMM yyyy':'fr' | titlecase }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-section">
+      <h2 class="section-title animate-slideInLeft">
+        <i class="bi bi-graph-up-arrow me-2"></i>
+        Indicateurs clés
+      </h2>
+      
+      <div class="kpi-grid">
+        <div class="kpi-card primary animate-scaleIn">
+          <div class="kpi-background"></div>
+          <div class="kpi-icon">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ stats.totalEtudiants }}</div>
+            <div class="kpi-label">Étudiants inscrits</div>
+            <div class="kpi-trend positive">
+              <i class="bi bi-arrow-up"></i>
+              <span>+12% ce mois</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card success animate-scaleIn" style="animation-delay: 0.1s">
+          <div class="kpi-background"></div>
+          <div class="kpi-icon">
+            <i class="bi bi-person-workspace"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ stats.totalEncadrants }}</div>
+            <div class="kpi-label">Encadrants actifs</div>
+            <div class="kpi-trend positive">
+              <i class="bi bi-arrow-up"></i>
+              <span>+8% ce mois</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card warning animate-scaleIn" style="animation-delay: 0.2s">
+          <div class="kpi-background"></div>
+          <div class="kpi-icon">
+            <i class="bi bi-hourglass-split"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ stats.enAttente }}</div>
+            <div class="kpi-label">Demandes en attente</div>
+            <div class="kpi-trend negative">
+              <i class="bi bi-arrow-down"></i>
+              <span>-5% cette semaine</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card info animate-scaleIn" style="animation-delay: 0.3s">
+          <div class="kpi-background"></div>
+          <div class="kpi-icon">
+            <i class="bi bi-check2-circle"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ stats.valides }}</div>
+            <div class="kpi-label">Stages validés</div>
+            <div class="kpi-trend positive">
+              <i class="bi bi-arrow-up"></i>
+              <span>+18% ce mois</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="analytics-section">
+      <h2 class="section-title animate-slideInLeft">
+        <i class="bi bi-bar-chart-line me-2"></i>
+        Analyses et tendances
+      </h2>
+      
+      <div class="charts-grid">
+        <div class="chart-card animate-slideInFromLeft">
+          <div class="chart-header">
+            <h3>
+              <i class="bi bi-bar-chart me-2"></i>
+              Évolution mensuelle
+            </h3>
+            <div class="chart-controls">
+              <button class="active">6 mois</button>
+              <button>1 an</button>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div *ngFor="let item of chartData.monthlyTrends" class="bar-group">
+                <div class="bars">
+                  <div class="bar stages">
+                    <div class="bar-fill" 
+                         [style.height.%]="getBarHeight(item.stages)"
+                         [attr.data-height]="getBarHeight(item.stages) + '%'">
+                    </div>
+                    <div class="bar-value">{{ item.stages }}</div>
+                  </div>
+                  <div class="bar validations">
+                    <div class="bar-fill"
+                         [style.height.%]="getBarHeight(item.validations)"
+                         [attr.data-height]="getBarHeight(item.validations) + '%'">
+                    </div>
+                    <div class="bar-value">{{ item.validations }}</div>
+                  </div>
+                </div>
+                <div class="bar-label">{{ item.month }}</div>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-color stages"></div>
+                <span>Demandes</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color validations"></div>
+                <span>Validations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card animate-slideInFromRight">
+          <div class="chart-header">
+            <h3>
+              <i class="bi bi-pie-chart me-2"></i>
+              Répartition par statut
+            </h3>
+          </div>
+          <div class="chart-body">
+            <div class="pie-chart">
+              <svg viewBox="0 0 200 200" class="pie-svg">
+                <circle cx="100" cy="100" r="80" fill="#f3f4f6" stroke="none"></circle>
+                
+                <ng-container *ngFor="let item of chartData.stagesByStatus; let i = index">
+                  <circle 
+                    *ngIf="item.value > 0"
+                    cx="100" 
+                    cy="100" 
+                    r="60"
+                    fill="none"
+                    [attr.stroke]="item.color"
+                    stroke-width="40"
+                    class="pie-segment"
+                    [attr.stroke-dasharray]="getPercentage(item.value) * 3.77 + ' 377'"
+                    [attr.stroke-dashoffset]="377 - (i * 94.25)"
+                    [attr.transform]="'rotate(-90 100 100)'">
+                  </circle>
+                </ng-container>
+              </svg>
+              
+              <div class="pie-center">
+                <div class="pie-total">{{ stats.total }}</div>
+                <div class="pie-label">Total stages</div>
+              </div>
+            </div>
+            
+            <div class="pie-legend">
+              <div *ngFor="let item of chartData.stagesByStatus" class="legend-item">
+                <div class="legend-color" [style.background-color]="item.color"></div>
+                <span>{{ item.name }} ({{ item.value }})</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="content-grid">
+        <div class="content-card animate-slideInFromLeft">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <div class="header-content">
+              <h3>Affectations étudiant-encadrant</h3>
+              <p>Gérez les associations entre étudiants et encadrants</p>
+            </div>
+            <button class="btn btn-primary" (click)="openAssignmentModal()">
+              <i class="bi bi-plus-lg"></i>
+              <span>Nouvelle affectation</span>
+            </button>
+          </div>
+          
+          <div class="card-body">
+            <div *ngIf="assignments.length === 0" class="empty-state">
+              <div class="empty-icon">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <h5>Aucune affectation</h5>
+              <p>Commencez par créer des affectations entre étudiants et encadrants</p>
+            </div>
+
+            <div *ngIf="assignments.length > 0" class="assignments-list">
+              <div *ngFor="let assignment of getRecentAssignments()" class="assignment-item">
+                <div class="assignment-avatar">
+                  <i class="bi bi-person"></i>
+                </div>
+                <div class="assignment-info">
+                  <div class="student-info">
+                    <i class="bi bi-mortarboard-fill me-1"></i>
+                    {{ assignment.etudiantNom }}
+                  </div>
+                  <div class="assignment-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                  </div>
+                  <div class="supervisor-info">
+                    <i class="bi bi-person-badge-fill me-1"></i>
+                    {{ assignment.encadrantNom }}
+                  </div>
+                </div>
+                <div class="assignment-actions">
+                  <button class="btn btn-sm btn-outline-danger" 
+                          (click)="removeAssignment(assignment.encadrantId)"
+                          title="Supprimer l'affectation">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="assignments.length > 5" class="view-all">
+              <a routerLink="/admin/assignments" class="btn btn-outline-primary">
+                Voir toutes les affectations ({{ assignments.length }})
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-card animate-slideInFromRight">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bi bi-briefcase"></i>
+            </div>
+            <div class="header-content">
+              <h3>Demandes de stages récentes</h3>
+              <p>Suivi des dernières demandes soumises</p>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <div class="filters-section">
+              <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" 
+                       placeholder="Rechercher par étudiant, entreprise..." 
+                       [(ngModel)]="searchTerm" 
+                       (input)="filterData()">
+              </div>
+              <select class="status-filter" [(ngModel)]="statusFilter" (change)="filterData()">
+                <option value="">Tous les statuts</option>
+                <option value="EN_ATTENTE">En attente</option>
+                <option value="VALIDE">Validé</option>
+                <option value="REFUSE">Refusé</option>
+                <option value="EN_COURS">En cours</option>
+              </select>
+            </div>
+
+            <div *ngIf="loading" class="loading-state">
+              <div class="spinner-modern"></div>
+              <p>Chargement des données...</p>
+            </div>
+
+            <div *ngIf="!loading" class="stages-table">
+              <div class="table-header">
+                <div class="table-title">
+                  <span>{{ filteredStages.length }} demande(s) trouvée(s)</span>
+                </div>
+              </div>
+              
+              <div class="table-wrapper">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <i class="bi bi-person me-1"></i>
+                        Étudiant
+                      </th>
+                      <th>
+                        <i class="bi bi-building me-1"></i>
+                        Entreprise
+                      </th>
+                      <th>
+                        <i class="bi bi-mortarboard me-1"></i>
+                        Filière
+                      </th>
+                      <th>
+                        <i class="bi bi-calendar-range me-1"></i>
+                        Période
+                      </th>
+                      <th>
+                        <i class="bi bi-flag me-1"></i>
+                        Statut
+                      </th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let stage of getPaginatedStages()" class="table-row">
+                      <td>
+                        <div class="student-cell">
+                          <div class="student-avatar">
+                            {{ (stage.etudiant?.prenom || 'E').charAt(0) }}{{ (stage.etudiant?.nom || 'T').charAt(0) }}
+                          </div>
+                          <div class="student-details">
+                            <div class="student-name">
+                              {{ stage.etudiant?.prenom }} {{ stage.etudiant?.nom }}
+                            </div>
+                            <div class="student-email">
+                              {{ stage.etudiant?.email }}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="company-cell">
+                          <i class="bi bi-building me-2"></i>
+                          {{ stage.entreprise }}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="filiere-badge">{{ stage.filiere }}</span>
+                      </td>
+                      <td>
+                        <div class="date-range">
+                          <i class="bi bi-calendar-event me-1"></i>
+                          {{ stage.dateDebut | date:'dd/MM' }} - {{ stage.dateFin | date:'dd/MM/yyyy' }}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-badge" [ngClass]="getStatusBadgeClass(stage.etat)">
+                          <i class="bi bi-circle-fill me-1"></i>
+                          {{ getStatusText(stage.etat) }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="actions-cell">
+                          <button class="btn btn-sm btn-outline-primary" 
+                                  title="Voir les détails">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-secondary" 
+                                  title="Modifier">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="pagination-wrapper" *ngIf="totalPages > 1">
+                <div class="pagination">
+                  <button class="page-btn" 
+                          [disabled]="currentPage === 1" 
+                          (click)="previousPage()">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  
+                  <div class="page-numbers">
+                    <button *ngFor="let page of [].constructor(totalPages); let i = index"
+                            class="page-number"
+                            [class.active]="currentPage === i + 1"
+                            (click)="goToPage(i + 1)">
+                      {{ i + 1 }}
+                    </button>
+                  </div>
+                  
+                  <button class="page-btn" 
+                          [disabled]="currentPage === totalPages" 
+                          (click)="nextPage()">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+                
+                <div class="pagination-info">
+                  Page {{ currentPage }} sur {{ totalPages }} • {{ filteredStages.length }} résultats
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions animate-fadeIn" style="animation-delay: 0.8s">
+      <h2 class="section-title">
+        <i class="bi bi-lightning me-2"></i>
+        Actions rapides
+      </h2>
+      
+      <div class="actions-grid">
+        <a routerLink="/admin/encadrants" class="action-card hover-lift">
+          <div class="action-background"></div>
+          <div class="action-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="action-content">
+            <h4>Gérer les encadrants</h4>
+            <p>Ajouter, modifier ou supprimer des encadrants</p>
+            <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <a routerLink="/admin/admins" class="action-card hover-lift">
+          <div class="action-background"></div>
+          <div class="action-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <div class="action-content">
+            <h4>Gérer les administrateurs</h4>
+            <p>Administrer les comptes administrateurs</p>
+            <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <div class="action-card info-card">
+          <div class="action-background"></div>
+          <div class="action-icon">
+            <i class="bi bi-graph-up"></i>
+          </div>
+          <div class="action-content">
+            <h4>Rapports et statistiques</h4>
+            <p>Consultez les analyses détaillées</p>
+            <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showAssignmentModal" class="modal-overlay animate-fadeIn" (click)="closeAssignmentModal()">
+  <div class="modal-card animate-scaleIn" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="bi bi-diagram-3 me-2"></i>
+        Créer une nouvelle affectation
+      </div>
+      <button class="modal-close" (click)="closeAssignmentModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <form (ngSubmit)="createAssignment()" #assignmentForm="ngForm">
+        <div class="form-section">
+          <label class="form-label">
+            <i class="bi bi-mortarboard me-2"></i>
+            Sélectionner un étudiant
+          </label>
+          <select class="form-control modern-select" 
+                  [(ngModel)]="newAssignment.etudiantId" 
+                  name="etudiantId"
+                  required>
+            <option value="">Choisir un étudiant...</option>
+            <option *ngFor="let student of students" [value]="student.id">
+              {{ student.prenom }} {{ student.nom }} ({{ student.email }})
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-section">
+          <label class="form-label">
+            <i class="bi bi-person-badge me-2"></i>
+            Sélectionner un encadrant
+          </label>
+          <select class="form-control modern-select" 
+                  [(ngModel)]="newAssignment.encadrantId" 
+                  name="encadrantId"
+                  required>
+            <option value="">Choisir un encadrant...</option>
+            <option *ngFor="let supervisor of supervisors" [value]="supervisor.id">
+              {{ supervisor.prenom }} {{ supervisor.nom }} 
+              <span *ngIf="supervisor.specialite">({{ supervisor.specialite }})</span>
+            </option>
+          </select>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" 
+                  class="btn btn-outline-secondary" 
+                  (click)="closeAssignmentModal()">
+            Annuler
+          </button>
+          <button type="submit" 
+                  class="btn btn-primary"
+                  [disabled]="!assignmentForm.valid || creatingAssignment">
+            <span *ngIf="creatingAssignment" class="spinner me-2"></span>
+            <i *ngIf="!creatingAssignment" class="bi bi-check-lg me-2"></i>
+            {{ creatingAssignment ? 'Création...' : 'Créer l\'affectation' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> -->
+
+
+<app-navbar></app-navbar>
+
+<div class="dashboard-layout">
+  <div class="dashboard-container">
+    <!-- Header modernisé -->
+    <div class="dashboard-header animate-fadeIn">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>
+            <i class="bi bi-speedometer2 me-3"></i>
+            Tableau de bord administrateur
+          </h1>
+          <p>Vue d'ensemble complète de la gestion des stages</p>
+        </div>
+        <div class="header-date">
+          <i class="bi bi-calendar-event"></i>
+          <span>{{ currentDate | date:'EEEE d MMMM yyyy':'fr' | titlecase }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="loading" class="loading-section">
+      <app-loading 
+        size="lg" 
+        variant="primary" 
+        message="Chargement des données..." 
+        description="Veuillez patienter pendant que nous récupérons les statistiques">
+      </app-loading>
+    </div>
+
+    <!-- Main content -->
+    <div *ngIf="!loading" class="dashboard-content">
+      <!-- KPI Cards modernisés -->
+      <div class="kpi-section">
+        <h2 class="section-title animate-slideInLeft">
+          <i class="bi bi-graph-up-arrow me-2"></i>
+          Indicateurs clés
+        </h2>
+        
+        <div class="kpi-grid">
+          <div class="kpi-card primary animate-scaleIn">
+            <div class="kpi-background"></div>
+            <div class="kpi-icon">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ stats.totalEtudiants }}</div>
+              <div class="kpi-label">Étudiants inscrits</div>
+              <div class="kpi-trend positive">
+                <i class="bi bi-arrow-up"></i>
+                <span>+12% ce mois</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card success animate-scaleIn" style="animation-delay: 0.1s">
+            <div class="kpi-background"></div>
+            <div class="kpi-icon">
+              <i class="bi bi-person-workspace"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ stats.totalEncadrants }}</div>
+              <div class="kpi-label">Encadrants actifs</div>
+              <div class="kpi-trend positive">
+                <i class="bi bi-arrow-up"></i>
+                <span>+8% ce mois</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card warning animate-scaleIn" style="animation-delay: 0.2s">
+            <div class="kpi-background"></div>
+            <div class="kpi-icon">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ stats.enAttente }}</div>
+              <div class="kpi-label">Demandes en attente</div>
+              <div class="kpi-trend negative">
+                <i class="bi bi-arrow-down"></i>
+                <span>-5% cette semaine</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card info animate-scaleIn" style="animation-delay: 0.3s">
+            <div class="kpi-background"></div>
+            <div class="kpi-icon">
+              <i class="bi bi-check2-circle"></i>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ stats.valides }}</div>
+              <div class="kpi-label">Stages validés</div>
+              <div class="kpi-trend positive">
+                <i class="bi bi-arrow-up"></i>
+                <span>+18% ce mois</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphiques et analytics -->
+      <div class="analytics-section">
+        <h2 class="section-title animate-slideInLeft">
+          <i class="bi bi-bar-chart-line me-2"></i>
+          Analyses et tendances
+        </h2>
+        
+        <div class="charts-grid">
+          <!-- Graphique en barres -->
+          <app-card 
+            title="Évolution mensuelle"
+            headerIcon="bi-bar-chart"
+            variant="primary"
+            class="chart-card animate-slideInFromLeft">
+            
+            <div slot="header-actions">
+              <div class="chart-controls">
+                <button class="btn btn-sm btn-outline-primary active">6 mois</button>
+                <button class="btn btn-sm btn-outline-primary">1 an</button>
+              </div>
+            </div>
+
+            <div class="chart-body">
+              <div class="bar-chart">
+                <div *ngFor="let item of chartData.monthlyTrends" class="bar-group">
+                  <div class="bars">
+                    <div class="bar stages">
+                      <div class="bar-fill"
+                           [style.height.%]="getBarHeight(item.stages)"
+                           [attr.data-height]="getBarHeight(item.stages) + '%'">
+                      </div>
+                      <div class="bar-value">{{ item.stages }}</div>
+                    </div>
+                    <div class="bar validations">
+                      <div class="bar-fill"
+                           [style.height.%]="getBarHeight(item.validations)"
+                           [attr.data-height]="getBarHeight(item.validations) + '%'">
+                      </div>
+                      <div class="bar-value">{{ item.validations }}</div>
+                    </div>
+                  </div>
+                  <div class="bar-label">{{ item.month }}</div>
+                </div>
+              </div>
+              
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <div class="legend-color stages"></div>
+                  <span>Demandes</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color validations"></div>
+                  <span>Validations</span>
+                </div>
+              </div>
+            </div>
+          </app-card>
+
+          <!-- Graphique circulaire -->
+          <app-card 
+            title="Répartition par statut"
+            headerIcon="bi-pie-chart"
+            variant="success"
+            class="chart-card animate-slideInFromRight">
+            
+            <div class="chart-body">
+              <div class="pie-chart">
+                <svg viewBox="0 0 200 200" class="pie-svg">
+                  <circle cx="100" cy="100" r="80" fill="#f3f4f6" stroke="none"></circle>
+                  
+                  <ng-container *ngFor="let item of chartData.stagesByStatus; let i = index">
+                    <circle
+                      *ngIf="item.value > 0"
+                      cx="100"
+                      cy="100"
+                      r="60"
+                      fill="none"
+                      [attr.stroke]="item.color"
+                      stroke-width="40"
+                      class="pie-segment"
+                      [attr.stroke-dasharray]="getPercentage(item.value) * 3.77 + ' 377'"
+                      [attr.stroke-dashoffset]="377 - (i * 94.25)"
+                      [attr.transform]="'rotate(-90 100 100)'">
+                    </circle>
+                  </ng-container>
+                </svg>
+                
+                <div class="pie-center">
+                  <div class="pie-total">{{ stats.total }}</div>
+                  <div class="pie-label">Total stages</div>
+                </div>
+              </div>
+              
+              <div class="pie-legend">
+                <div *ngFor="let item of chartData.stagesByStatus" class="legend-item">
+                  <div class="legend-color" [style.background-color]="item.color"></div>
+                  <span>{{ item.name }} ({{ item.value }})</span>
+                </div>
+              </div>
+            </div>
+          </app-card>
+        </div>
+      </div>
+
+      <!-- Section principale -->
+      <div class="main-content">
+        <div class="content-grid">
+          <!-- Gestion des affectations -->
+          <app-card 
+            title="Affectations étudiant-encadrant"
+            subtitle="Gérez les associations entre étudiants et encadrants"
+            headerIcon="bi-diagram-3"
+            variant="info"
+            class="animate-slideInFromLeft">
+            
+            <div slot="header-actions">
+              <button class="btn btn-primary" (click)="openAssignmentModal()">
+                <i class="bi bi-plus-lg"></i>
+                <span>Nouvelle affectation</span>
+              </button>
+            </div>
+
+            <app-empty-state 
+              *ngIf="assignments.length === 0"
+              title="Aucune affectation"
+              description="Commencez par créer des affectations entre étudiants et encadrants"
+              icon="bi-people-fill"
+              variant="info"
+              [actions]="emptyAssignmentActions">
+            </app-empty-state>
+
+            <div *ngIf="assignments.length > 0" class="assignments-list">
+              <div *ngFor="let assignment of getRecentAssignments()" class="assignment-item">
+                <div class="assignment-avatar">
+                  <i class="bi bi-person"></i>
+                </div>
+                <div class="assignment-info">
+                  <div class="student-info">
+                    <i class="bi bi-mortarboard-fill me-1"></i>
+                    {{ assignment.etudiantNom }}
+                  </div>
+                  <div class="assignment-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                  </div>
+                  <div class="supervisor-info">
+                    <i class="bi bi-person-badge-fill me-1"></i>
+                    {{ assignment.encadrantNom }}
+                  </div>
+                </div>
+                <div class="assignment-actions">
+                  <button class="btn btn-sm btn-outline-danger"
+                           (click)="removeAssignment(assignment.encadrantId)"
+                          title="Supprimer l'affectation">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="assignments.length > 5" class="view-all">
+              <a routerLink="/admin/assignments" class="btn btn-outline-primary">
+                Voir toutes les affectations ({{ assignments.length }})
+              </a>
+            </div>
+          </app-card>
+
+          <!-- Liste des stages récents -->
+          <app-card 
+            title="Demandes de stages récentes"
+            subtitle="Suivi des dernières demandes soumises"
+            headerIcon="bi-briefcase"
+            variant="warning"
+            class="animate-slideInFromRight">
+            
+            <!-- Filtres et recherche -->
+            <div class="filters-section">
+              <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       placeholder="Rechercher par étudiant, entreprise..."
+                       [(ngModel)]="searchTerm"
+                       (input)="filterData()">
+              </div>
+              <select class="status-filter" [(ngModel)]="statusFilter" (change)="filterData()">
+                <option value="">Tous les statuts</option>
+                <option value="EN_ATTENTE">En attente</option>
+                <option value="VALIDE">Validé</option>
+                <option value="REFUSE">Refusé</option>
+                <option value="EN_COURS">En cours</option>
+              </select>
+            </div>
+
+            <!-- Table des stages -->
+            <div class="stages-table">
+              <div class="table-header">
+                <div class="table-title">
+                  <span>{{ filteredStages.length }} demande(s) trouvée(s)</span>
+                </div>
+              </div>
+              
+              <div class="table-wrapper">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <i class="bi bi-person me-1"></i>
+                        Étudiant
+                      </th>
+                      <th>
+                        <i class="bi bi-building me-1"></i>
+                        Entreprise
+                      </th>
+                      <th>
+                        <i class="bi bi-mortarboard me-1"></i>
+                        Filière
+                      </th>
+                      <th>
+                        <i class="bi bi-calendar-range me-1"></i>
+                        Période
+                      </th>
+                      <th>
+                        <i class="bi bi-flag me-1"></i>
+                        Statut
+                      </th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let stage of getPaginatedStages()" class="table-row">
+                      <td>
+                        <div class="student-cell">
+                          <div class="student-avatar">
+                            {{ (stage.etudiant?.prenom || 'E').charAt(0) }}{{ (stage.etudiant?.nom || 'T').charAt(0) }}
+                          </div>
+                          <div class="student-details">
+                            <div class="student-name">
+                              {{ stage.etudiant?.prenom }} {{ stage.etudiant?.nom }}
+                            </div>
+                            <div class="student-email">
+                              {{ stage.etudiant?.email }}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="company-cell">
+                          <i class="bi bi-building me-2"></i>
+                          {{ stage.entreprise }}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="filiere-badge">{{ stage.filiere }}</span>
+                      </td>
+                      <td>
+                        <div class="date-range">
+                          <i class="bi bi-calendar-event me-1"></i>
+                          {{ stage.dateDebut | date:'dd/MM' }} - {{ stage.dateFin | date:'dd/MM/yyyy' }}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-badge" [ngClass]="getStatusBadgeClass(stage.etat)">
+                          <i class="bi bi-circle-fill me-1"></i>
+                          {{ getStatusText(stage.etat) }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="actions-cell">
+                          <button class="btn btn-sm btn-outline-primary"
+                                   title="Voir les détails">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-secondary"
+                                   title="Modifier">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Pagination modernisée -->
+              <div class="pagination-wrapper" *ngIf="totalPages > 1">
+                <div class="pagination">
+                  <button class="page-btn"
+                           [disabled]="currentPage === 1"
+                           (click)="previousPage()">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  
+                  <div class="page-numbers">
+                    <button *ngFor="let page of [].constructor(totalPages); let i = index"
+                            class="page-number"
+                            [class.active]="currentPage === i + 1"
+                            (click)="goToPage(i + 1)">
+                      {{ i + 1 }}
+                    </button>
+                  </div>
+                  
+                  <button class="page-btn"
+                           [disabled]="currentPage === totalPages"
+                           (click)="nextPage()">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+                
+                <div class="pagination-info">
+                  Page {{ currentPage }} sur {{ totalPages }} • {{ filteredStages.length }} résultats
+                </div>
+              </div>
+            </div>
+          </app-card>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <div class="quick-actions animate-fadeIn" style="animation-delay: 0.8s">
+        <h2 class="section-title">
+          <i class="bi bi-lightning me-2"></i>
+          Actions rapides
+        </h2>
+        
+        <div class="actions-grid">
+          <a routerLink="/admin/encadrants" class="action-card hover-lift">
+            <div class="action-background"></div>
+            <div class="action-icon">
+              <i class="bi bi-people"></i>
+            </div>
+            <div class="action-content">
+              <h4>Gérer les encadrants</h4>
+              <p>Ajouter, modifier ou supprimer des encadrants</p>
+              <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+          </a>
+
+          <a routerLink="/admin/admins" class="action-card hover-lift">
+            <div class="action-background"></div>
+            <div class="action-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="action-content">
+              <h4>Gérer les administrateurs</h4>
+              <p>Administrer les comptes administrateurs</p>
+              <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+          </a>
+
+          <div class="action-card info-card">
+            <div class="action-background"></div>
+            <div class="action-icon">
+              <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="action-content">
+              <h4>Rapports et statistiques</h4>
+              <p>Consultez les analyses détaillées</p>
+              <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'affectation modernisée -->
+<div *ngIf="showAssignmentModal" class="modal-overlay animate-fadeIn" (click)="closeAssignmentModal()">
+  <div class="modal-card animate-scaleIn" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="bi bi-diagram-3 me-2"></i>
+        Nouvelle affectation de groupe
+      </div>
+      <button class="modal-close" (click)="closeAssignmentModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <form (ngSubmit)="createGroupAssignment()" #groupForm="ngForm">
+        
+        <!-- Encadrant -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="bi bi-person-badge me-2"></i>
+            Sélectionner un encadrant
+          </label>
+          <select class="form-control modern-select"
+                  [(ngModel)]="newGroupAssignment.encadrantId"
+                  name="encadrantId"
+                  required>
+            <option value="">Choisir un encadrant...</option>
+            <option *ngFor="let sup of supervisors" [value]="sup.id">
+              {{ sup.prenom }} {{ sup.nom }}
+              <span *ngIf="sup.specialite">({{ sup.specialite }})</span>
+            </option>
+          </select>
+        </div>
+
+        <!-- Département -->
+<div class="form-section">
+  <label class="form-label">
+    <i class="bi bi-building me-2"></i>
+    Sélectionner un département
+  </label>
+  
+  <select class="form-control modern-select"
+          [(ngModel)]="newGroupAssignment.departementId"
+          (ngModelChange)="onDepartementChange($event)"
+          name="departementId"
+          required>
+    
+    <option [ngValue]="null">Choisir un département...</option>
+    
+    <ng-container *ngIf="!loadingDepartements; else loadingDeps">
+      <option *ngFor="let dep of departements" [ngValue]="dep.id">
+        {{ dep.nom }}
+      </option>
+    </ng-container>
+  </select>
+  
+  <ng-template #loadingDeps>
+    <option disabled>Chargement des départements...</option>
+  </ng-template>
+</div>
+
+
+
+       <!-- Groupe de classe -->
+<div class="form-section">
+  <label class="form-label">
+    <i class="bi bi-people me-2"></i>
+    Sélectionner un groupe de classe
+  </label>
+  
+  <select class="form-control modern-select"
+          [(ngModel)]="newGroupAssignment.classeGroupeId"
+          name="classeGroupeId"
+          [disabled]="loadingAllClassGroups"
+          required>
+    
+    <option [ngValue]="null">Choisir un groupe...</option>
+    
+    <ng-container *ngIf="!loadingAllClassGroups; else loadingGroups">
+      <option *ngFor="let grp of allClassGroups" [ngValue]="grp.id">
+        {{ grp.nom }}
+      </option>
+    </ng-container>
+  </select>
+  
+  <ng-template #loadingGroups>
+    <option disabled>Chargement des groupes...</option>
+  </ng-template>
+  
+  <div *ngIf="allClassGroups.length === 0 && !loadingAllClassGroups" 
+       class="text-sm text-warning mt-1">
+    Aucun groupe disponible
+  </div>
+</div>
+
+
+
+      <div class="form-section">
+  <label class="form-label">
+    <i class="bi bi-calendar me-2"></i>
+    Sélectionner une année scolaire
+  </label>
+  
+  <select class="form-control modern-select"
+          [(ngModel)]="newGroupAssignment.anneeScolaireId"
+          name="anneeScolaireId"
+          required>
+    
+    <option [ngValue]="null">Choisir une année...</option>
+    
+    <ng-container *ngIf="!loadingAnnees; else loadingYears">
+      <option *ngFor="let an of anneesScolaires" [ngValue]="an.id">
+        {{ an.libelle }}
+      </option>
+    </ng-container>
+  </select>
+  
+  <ng-template #loadingYears>
+    <option disabled>Chargement des années scolaires...</option>
+  </ng-template>
+</div>
+        
+        <div class="modal-actions">
+          <button type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="closeAssignmentModal()">
+            Annuler
+          </button>
+          <button type="submit"
+                  class="btn btn-primary"
+                  [disabled]="!groupForm.valid || creatingAssignment">
+            <span *ngIf="creatingAssignment" class="spinner me-2"></span>
+            <i *ngIf="!creatingAssignment" class="bi bi-check-lg me-2"></i>
+            {{ creatingAssignment ? 'Assignation en cours...' : 'Affecter le groupe' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

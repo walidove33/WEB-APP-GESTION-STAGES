@@ -1,0 +1,90 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "estbm-frontend": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+       "builder": "@angular-devkit/build-angular:browser",
+       "options": {
+         "outputPath": "dist/estbm-frontend",
+         "index": "src/index.html",
+        "main": "src/main.ts",
+         "polyfills": ["zone.js"],
+         "tsConfig": "tsconfig.app.json",
+         "assets": [
+           { "glob": "**/*", "input": "public", "output": "/" }
+         ],
+         "styles": [
+           "src/styles.scss",
+           "src/global_styles.css",
+           "node_modules/bootstrap/dist/css/bootstrap.min.css",
+           "node_modules/@fortawesome/fontawesome-free/css/all.css"
+         ],
+         "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"]
+       },
+       "configurations": {
+         "production": {
+           "outputHashing": "all"
+         },
+         "development": {
+           "optimization": false,
+           "extractLicenses": false,
+           "sourceMap": true
+         }
+       },
+       "defaultConfiguration": "production"
+     },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "estbm-frontend:build:production"
+            },
+            "development": {
+              "buildTarget": "estbm-frontend:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/global_styles.css",
+              "src/styles.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.css"
+            ],
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "f5b5d406-d4d6-4e14-8c21-8c3a11628ede"
+  }
+}

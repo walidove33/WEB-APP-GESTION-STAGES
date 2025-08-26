@@ -1,0 +1,272 @@
+<app-navbar></app-navbar>
+
+<div class="planifications-layout" (keydown)="onKeyDown($event)">
+  <div class="planifications-container">
+    
+    <!-- Header Section -->
+    <div class="planifications-header animate-fadeIn">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>
+            <i class="bi bi-calendar-week me-3"></i>
+            Mes Planifications de Soutenance
+          </h1>
+          <p>Gérez vos planifications et organisez les créneaux de soutenance</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline-secondary" (click)="refreshData()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Actualiser
+          </button>
+          <a routerLink="/encadrant/dashboard" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour au tableau de bord
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section animate-slideInLeft">
+      <div class="stats-grid">
+        <app-card 
+          title="Total"
+          headerIcon="bi-calendar-event"
+          variant="primary"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Planifications</div>
+          </div>
+        </app-card>
+
+        <app-card 
+          title="À venir"
+          headerIcon="bi-calendar-check"
+          variant="success"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.upcoming }}</div>
+            <div class="stat-label">Prochaines</div>
+          </div>
+        </app-card>
+
+        <app-card 
+          title="Passées"
+          headerIcon="bi-calendar-x"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.past }}</div>
+            <div class="stat-label">Terminées</div>
+          </div>
+        </app-card>
+
+        <app-card 
+          title="Créneaux"
+          headerIcon="bi-clock"
+          variant="info"
+          class="stat-card">
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalSlots }}</div>
+            <div class="stat-label">Total créneaux</div>
+          </div>
+        </app-card>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content animate-slideInRight">
+      
+      <!-- Planifications List View -->
+      <div *ngIf="!selectedPlanification" class="planifications-view">
+        <app-data-table
+          [data]="planifications"
+          [columns]="columns"
+          [actions]="actions"
+          [loading]="loading"
+          title="Vos Planifications"
+          subtitle="Liste de toutes vos planifications de soutenance"
+          [searchable]="true"
+          [sortable]="true"
+          [showPagination]="true"
+          [pageSize]="10"
+          emptyTitle="Aucune planification"
+          emptyMessage="Vous n'avez pas encore de planifications assignées"
+          emptyIcon="bi-calendar-x">
+
+          <!-- Custom templates -->
+          <ng-template #dateTemplate let-planification let-value="value">
+            <div class="date-cell">
+              <div class="date-badge" [ngClass]="getStatusBadgeClass(planification)">
+                <i class="bi bi-calendar-event me-1"></i>
+                {{ formatDate(value) }}
+              </div>
+              <small class="date-status">{{ getStatusText(planification) }}</small>
+            </div>
+          </ng-template>
+
+         <ng-template #encadrantTemplate let-planification>
+  <div class="encadrant-cell">
+    <div class="encadrant-avatar">
+      {{ getEncadrantName(planification.encadrant) }}
+    </div>
+    <div class="encadrant-info">
+      <div class="encadrant-name">
+        {{ getEncadrantName(planification.encadrant) }}
+      </div>
+      <small class="encadrant-specialite">
+        {{ planification.encadrant?.specialite || 'Spécialité non définie' }}
+      </small>
+    </div>
+  </div>
+</ng-template>
+
+
+          <!-- Header actions -->
+          <div slot="header-actions">
+            <button class="btn btn-primary" (click)="refreshData()">
+              <i class="bi bi-arrow-clockwise me-2"></i>
+              Actualiser
+            </button>
+          </div>
+        </app-data-table>
+      </div>
+
+      <!-- Planification Details View -->
+      <div *ngIf="selectedPlanification" class="details-view">
+        <!-- Details Header -->
+        <div class="details-header">
+          <div class="header-content">
+            <div class="header-text">
+              <h2>
+                <i class="bi bi-clock me-3"></i>
+                Créneaux de Soutenance
+              </h2>
+              <p>{{ formatDate(selectedPlanification.dateSoutenance) }} - {{ selectedPlanification.departement.nom }}</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-success" (click)="openDetailModal(selectedPlanification)">
+                <i class="bi bi-plus-circle me-2"></i>
+                Ajouter un créneau
+              </button>
+              <button class="btn btn-outline-secondary" (click)="backToPlanifications()">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour aux planifications
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details Table -->
+        <app-data-table
+          [data]="planificationDetails"
+          [columns]="detailColumns"
+          [actions]="detailActions"
+          [loading]="loadingDetails"
+          title="Créneaux de Soutenance"
+          [subtitle]="'Planification du ' + formatDate(selectedPlanification.dateSoutenance)"
+          [searchable]="true"
+          [sortable]="true"
+          [showPagination]="false"
+          emptyTitle="Aucun créneau"
+          emptyMessage="Cette planification ne contient pas encore de créneaux"
+          emptyIcon="bi-clock">
+
+          <!-- Header actions for details -->
+          <div slot="header-actions">
+            <button class="btn btn-outline-primary" (click)="exportToPDF(selectedPlanification)">
+              <i class="bi bi-file-earmark-pdf me-2"></i>
+              Exporter PDF
+            </button>
+          </div>
+        </app-data-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for adding/editing details -->
+<div *ngIf="showDetailModal" class="modal-overlay animate-fadeIn" (click)="closeDetailModal()">
+  <div class="modal-card animate-scaleIn" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="bi bi-clock me-2"></i>
+        {{ newDetail.id ? 'Modifier le créneau' : 'Ajouter un créneau' }}
+      </div>
+      <button class="modal-close" (click)="closeDetailModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <form (ngSubmit)="addDetailToPlanification()" #detailForm="ngForm">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-journal-text me-2"></i>
+            Sujet de soutenance *
+          </label>
+          <input
+            type="text"
+            class="form-control modern-input"
+            [(ngModel)]="newDetail.sujet"
+            name="sujet"
+            required
+            placeholder="Sujet du stage à soutenir">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-clock me-2"></i>
+              Heure de début *
+            </label>
+            <input
+              type="time"
+              class="form-control modern-input"
+              [(ngModel)]="newDetail.heureDebut"
+              name="heureDebut"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-clock-fill me-2"></i>
+              Heure de fin *
+            </label>
+            <input
+              type="time"
+              class="form-control modern-input"
+              [(ngModel)]="newDetail.heureFin"
+              name="heureFin"
+              required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-person me-2"></i>
+            Étudiant *
+          </label>
+          <select
+            class="form-control modern-input"
+            [(ngModel)]="newDetail.etudiant.id"
+            name="etudiantId"
+            required>
+            <option value="0">Sélectionnez un étudiant</option>
+            <!-- TODO: Load students based on selected class/department -->
+          </select>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeDetailModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!detailForm.valid">
+            <i class="bi bi-check-lg me-2"></i>
+            {{ newDetail.id ? 'Modifier' : 'Ajouter' }} le créneau
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

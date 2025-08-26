@@ -1,0 +1,253 @@
+
+
+
+<div class="register-layout">
+  <div class="register-background">
+    <div class="bg-pattern"></div>
+    <div class="bg-gradient"></div>
+  </div>
+  
+  <div class="register-container">
+    <div class="register-card animate-scaleIn">
+      <div class="register-header">
+        <div class="logo-section">
+          <div class="logo-circle">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+          <h1 class="app-title">Inscription Étudiant</h1>
+          <p class="institution-name">École Supérieure de Technologie</p>
+          <!-- <p class="ministry-label">Ministère de l'Éducation Nationale - Royaume du Maroc</p> -->
+        </div>
+      </div>
+
+      <div class="register-body">
+        <div class="alert alert-success modern-alert animate-fade-in" *ngIf="successMessage" role="alert">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          {{ successMessage }}
+        </div>
+
+        <div class="alert alert-danger modern-alert animate-fade-in" *ngIf="errorMessage" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="onRegister()" #registerForm="ngForm" class="register-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prenom" class="form-label">
+                <i class="bi bi-person me-2"></i>
+                Prénom *
+              </label>
+              <input 
+                type="text" 
+                class="form-control modern-input" 
+                id="prenom" 
+                name="prenom"
+                [(ngModel)]="userData.prenom"
+                required
+                #prenom="ngModel"
+                placeholder="Votre prénom"
+                [class.is-invalid]="prenom.invalid && prenom.touched">
+              <div class="invalid-feedback" *ngIf="prenom.invalid && prenom.touched">
+                Le prénom est requis
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="nom" class="form-label">
+                <i class="bi bi-person me-2"></i>
+                Nom *
+              </label>
+              <input 
+                type="text" 
+                class="form-control modern-input" 
+                id="nom" 
+                name="nom"
+                [(ngModel)]="userData.nom"
+                required
+                #nom="ngModel"
+                placeholder="Votre nom"
+                [class.is-invalid]="nom.invalid && nom.touched">
+              <div class="invalid-feedback" *ngIf="nom.invalid && nom.touched">
+                Le nom est requis
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="codeApogee" class="form-label">
+                <i class="bi bi-card-text me-2"></i>
+                Code Apogée *
+              </label>
+              <input 
+                type="text" 
+                class="form-control modern-input" 
+                id="codeApogee" 
+                name="codeApogee"
+                [(ngModel)]="userData.codeApogee"
+                required
+                #codeApogee="ngModel"
+                placeholder="Ex: 12345678"
+                [class.is-invalid]="codeApogee.invalid && codeApogee.touched">
+              <div class="invalid-feedback" *ngIf="codeApogee.invalid && codeApogee.touched">
+                Le code Apogée est requis
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="codeMassar" class="form-label">
+                <i class="bi bi-credit-card me-2"></i>
+                Code Massar *
+              </label>
+              <input 
+                type="text" 
+                class="form-control modern-input" 
+                id="codeMassar" 
+                name="codeMassar"
+                [(ngModel)]="userData.codeMassar"
+                required
+                #codeMassar="ngModel"
+                placeholder="Ex: M123456789"
+                [class.is-invalid]="codeMassar.invalid && codeMassar.touched">
+              <div class="invalid-feedback" *ngIf="codeMassar.invalid && codeMassar.touched">
+                Le code Massar est requis
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">
+              <i class="bi bi-envelope me-2"></i>
+              Adresse email *
+            </label>
+            <input 
+              type="email" 
+              class="form-control modern-input" 
+              id="email" 
+              name="email"
+              [(ngModel)]="userData.email"
+              required
+              #email="ngModel"
+              placeholder="votre.email@est.ac.ma"
+              [class.is-invalid]="email.invalid && email.touched">
+            <div class="invalid-feedback" *ngIf="email.invalid && email.touched">
+              Veuillez saisir une adresse email valide
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="telephone" class="form-label">
+                <i class="bi bi-phone me-2"></i>
+                Téléphone *
+              </label>
+              <input 
+                type="tel" 
+                class="form-control modern-input" 
+                id="telephone" 
+                name="telephone"
+                [(ngModel)]="userData.telephone"
+                required
+                #telephone="ngModel"
+                placeholder="06 12 34 56 78"
+                [class.is-invalid]="telephone.invalid && telephone.touched">
+              <div class="invalid-feedback" *ngIf="telephone.invalid && telephone.touched">
+                Le numéro de téléphone est requis
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="dateNaissance" class="form-label">
+                <i class="bi bi-calendar me-2"></i>
+                Date de naissance *
+              </label>
+              <input 
+                type="date" 
+                class="form-control modern-input" 
+                id="dateNaissance" 
+                name="dateNaissance"
+                [(ngModel)]="userData.dateNaissance"
+                required
+                #dateNaissance="ngModel"
+                [class.is-invalid]="dateNaissance.invalid && dateNaissance.touched">
+              <div class="invalid-feedback" *ngIf="dateNaissance.invalid && dateNaissance.touched">
+                La date de naissance est requise
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+  <label for="specialite" class="form-label">
+    <i class="bi bi-mortarboard-fill me-2"></i>
+    Spécialité *
+  </label>
+  <select
+    id="specialite"
+    name="specialite"
+    class="form-select modern-input"
+    [(ngModel)]="userData.specialite"
+    required
+    #specialite="ngModel"
+    [class.is-invalid]="specialite.invalid && specialite.touched"
+  >
+    <option value="" disabled>Choisissez une spécialité</option>
+    <option *ngFor="let sp of specialites" [value]="sp">{{ sp }}</option>
+  </select>
+  <div class="invalid-feedback" *ngIf="specialite.invalid && specialite.touched">
+    La spécialité est requise
+  </div>
+</div>
+
+
+          <div class="form-group">
+            <label for="password" class="form-label">
+              <i class="bi bi-lock me-2"></i>
+              Mot de passe *
+            </label>
+            <input 
+              type="password" 
+              class="form-control modern-input" 
+              id="password" 
+              name="password"
+              [(ngModel)]="userData.password"
+              required
+              minlength="6"
+              #password="ngModel"
+              placeholder="Minimum 6 caractères"
+              [class.is-invalid]="password.invalid && password.touched">
+            <div class="invalid-feedback" *ngIf="password.invalid && password.touched">
+              <div *ngIf="password.errors?.['required']">Le mot de passe est requis</div>
+              <div *ngIf="password.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</div>
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            class="btn btn-register" 
+            [disabled]="registerForm.invalid || loading">
+            <span *ngIf="loading" class="spinner me-2"></span>
+            <i class="bi bi-person-plus me-2" *ngIf="!loading"></i>
+            {{ loading ? 'Inscription en cours...' : 'Créer mon compte' }}
+          </button>
+        </form>
+
+        <div class="login-link">
+          <p class="text-muted">
+            Déjà inscrit ?
+            <a routerLink="/login" class="link-primary">
+              Se connecter
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div class="register-footer">
+        <p class="footer-text">
+          <i class="bi bi-shield-check me-1"></i>
+          Vos données sont protégées et sécurisées
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

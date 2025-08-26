@@ -1,0 +1,206 @@
+<app-navbar></app-navbar>
+
+<div class="soutenance-layout">
+  <div class="soutenance-container">
+    <!-- Header -->
+    <div class="soutenance-header">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>
+            <i class="bi bi-calendar-check me-3"></i>
+            Mes Soutenances de Stage
+          </h1>
+          <p>Consultez vos créneaux de soutenance programmés</p>
+        </div>
+        <div class="header-actions">
+          <a routerLink="/student/dashboard" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour au tableau de bord
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prochaine soutenance (highlight) -->
+    <div *ngIf="getNextSoutenance()" class="next-soutenance-section">
+      <div class="next-soutenance-card">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-star-fill"></i>
+          </div>
+          <div class="header-content">
+            <h3>Prochaine Soutenance</h3>
+            <p>Votre prochaine soutenance programmée</p>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <div class="next-soutenance-info">
+            <div class="soutenance-date">
+              <div class="date-circle">
+                <span class="day">{{ getNextSoutenance()!.date | date:'dd' }}</span>
+                <span class="month">{{ getNextSoutenance()!.date | date:'MMM' }}</span>
+              </div>
+              <div class="date-details">
+                <h4>{{ formatDate(getNextSoutenance()!.date) }}</h4>
+                <p class="time-slot">
+                  <i class="bi bi-clock me-2"></i>
+                  {{ formatTime(getNextSoutenance()!.heureDebut) }} - {{ formatTime(getNextSoutenance()!.heureFin) }}
+                </p>
+              </div>
+            </div>
+            
+            <div class="soutenance-details">
+              <h5>{{ getNextSoutenance()!.sujet }}</h5>
+              <div class="countdown">
+                <i class="bi bi-hourglass-split me-2"></i>
+                <span>{{ getSoutenanceStatusText(getNextSoutenance()!) }}</span>
+              </div>
+            </div>
+            
+            <div class="soutenance-actions">
+              <button class="btn btn-primary" (click)="prepareSoutenance(getNextSoutenance()!)">
+                <i class="bi bi-book me-2"></i>
+                Préparer
+              </button>
+              <button class="btn btn-outline-secondary" (click)="addToCalendar(getNextSoutenance()!)">
+                <i class="bi bi-calendar-plus me-2"></i>
+                Calendrier
+              </button>
+              <button class="btn btn-outline-info" (click)="downloadSoutenanceInfo(getNextSoutenance()!)">
+                <i class="bi bi-download me-2"></i>
+                Infos
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card stat-primary">
+          <div class="stat-icon">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ soutenances.length }}</div>
+            <div class="stat-label">Total soutenances</div>
+          </div>
+        </div>
+
+        <div class="stat-card stat-success">
+          <div class="stat-icon">
+            <i class="bi bi-calendar-check"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ getUpcomingSoutenances().length }}</div>
+            <div class="stat-label">À venir</div>
+          </div>
+        </div>
+
+        <div class="stat-card stat-secondary">
+          <div class="stat-icon">
+            <i class="bi bi-calendar-x"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ getPastSoutenances().length }}</div>
+            <div class="stat-label">Terminées</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des soutenances -->
+    <div class="soutenances-section">
+      <div class="section-header">
+        <h2>
+          <i class="bi bi-list-check me-2"></i>
+          Toutes vos Soutenances
+        </h2>
+      </div>
+
+      <!-- Loading state -->
+      <div *ngIf="loading" class="loading-state">
+        <app-loading size="lg" message="Chargement de vos soutenances..."></app-loading>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!loading && soutenances.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-calendar-x"></i>
+        </div>
+        <h4>Aucune soutenance programmée</h4>
+        <p>Vous n'avez pas encore de créneaux de soutenance assignés</p>
+      </div>
+
+      <!-- Liste des soutenances -->
+      <div *ngIf="!loading && soutenances.length > 0" class="soutenances-list">
+        <div *ngFor="let soutenance of soutenances; let i = index" 
+             class="soutenance-item"
+             [ngClass]="getSoutenanceStatusClass(soutenance)"
+             [style.animation-delay]="i * 100 + 'ms'">
+          
+          <div class="soutenance-timeline">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line" *ngIf="i < soutenances.length - 1"></div>
+          </div>
+          
+          <div class="soutenance-content">
+            <div class="soutenance-header">
+              <div class="soutenance-date">
+                <h4>{{ formatDate(soutenance.date) }}</h4>
+                <p class="time-info">
+                  <i class="bi bi-clock me-2"></i>
+                  {{ formatTime(soutenance.heureDebut) }} - {{ formatTime(soutenance.heureFin) }}
+                </p>
+              </div>
+              
+              <div class="soutenance-status">
+                <span class="status-badge" [ngClass]="getSoutenanceStatusClass(soutenance)">
+                  <i class="bi" [ngClass]="{
+                    'bi-check-circle': getSoutenanceStatusClass(soutenance) === 'soutenance-past',
+                    'bi-clock': getSoutenanceStatusClass(soutenance) === 'soutenance-today',
+                    'bi-calendar-event': getSoutenanceStatusClass(soutenance) === 'soutenance-upcoming'
+                  }"></i>
+                  {{ getSoutenanceStatusText(soutenance) }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="soutenance-details">
+              <h5>{{ soutenance.sujet }}</h5>
+              <div class="detail-item" *ngIf="soutenance.entreprise">
+                <i class="bi bi-building"></i>
+                <span>{{ soutenance.entreprise }}</span>
+              </div>
+            </div>
+            
+            <div class="soutenance-actions">
+              <button class="btn btn-sm btn-outline-primary" 
+                      (click)="addToCalendar(soutenance)"
+                      title="Ajouter au calendrier">
+                <i class="bi bi-calendar-plus me-1"></i>
+                Calendrier
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" 
+                      (click)="downloadSoutenanceInfo(soutenance)"
+                      title="Télécharger les informations">
+                <i class="bi bi-download me-1"></i>
+                Infos
+              </button>
+              <button *ngIf="getSoutenanceStatusClass(soutenance) === 'soutenance-upcoming'"
+                      class="btn btn-sm btn-primary" 
+                      (click)="prepareSoutenance(soutenance)"
+                      title="Préparer la soutenance">
+                <i class="bi bi-book me-1"></i>
+                Préparer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

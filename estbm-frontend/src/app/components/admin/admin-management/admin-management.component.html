@@ -1,0 +1,225 @@
+<app-navbar></app-navbar>
+
+<div class="management-layout">
+  <div class="management-container">
+    <!-- Header modernisé -->
+    <div class="management-header animate-fadeIn">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>
+            <i class="bi bi-shield-check me-3"></i>
+            Gestion des Administrateurs
+          </h1>
+          <p>Créez et gérez les comptes administrateurs du système</p>
+        </div>
+        <div class="header-actions">
+          <a routerLink="/admin/dashboard" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour au tableau de bord
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="management-grid">
+      <!-- Formulaire de création modernisé -->
+      <div class="management-card form-card animate-slideInFromLeft">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-person-plus"></i>
+          </div>
+          <div class="header-content">
+            <h3>Créer un Administrateur</h3>
+            <p>Ajoutez un nouveau compte administrateur</p>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <div *ngIf="successMessage" class="alert alert-success modern-alert">
+            <i class="bi bi-check-circle me-2"></i>
+            {{ successMessage }}
+          </div>
+          
+          <div *ngIf="errorMessage" class="alert alert-danger modern-alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ errorMessage }}
+          </div>
+
+          <form #adminForm="ngForm" (ngSubmit)="createAdmin()" class="modern-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nom" class="form-label">
+                  <i class="bi bi-person me-2"></i>
+                  Nom *
+                </label>
+                <input
+                  id="nom" name="nom"
+                  class="form-control modern-input"
+                  [(ngModel)]="newAdmin.nom"
+                  required
+                  #nom="ngModel"
+                  placeholder="Nom de famille"
+                  [class.is-invalid]="nom.invalid && nom.touched">
+                <div *ngIf="nom.invalid && nom.touched" class="invalid-feedback">
+                  Le nom est requis
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prenom" class="form-label">
+                  <i class="bi bi-person me-2"></i>
+                  Prénom *
+                </label>
+                <input
+                  id="prenom" name="prenom"
+                  class="form-control modern-input"
+                  [(ngModel)]="newAdmin.prenom"
+                  required
+                  #prenom="ngModel"
+                  placeholder="Prénom"
+                  [class.is-invalid]="prenom.invalid && prenom.touched">
+                <div *ngIf="prenom.invalid && prenom.touched" class="invalid-feedback">
+                  Le prénom est requis
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label">
+                <i class="bi bi-envelope me-2"></i>
+                Adresse email *
+              </label>
+              <input
+                id="email" name="email" type="email"
+                class="form-control modern-input"
+                [(ngModel)]="newAdmin.email"
+                required
+                #email="ngModel"
+                placeholder="admin@est.ac.ma"
+                [class.is-invalid]="email.invalid && email.touched">
+              <div *ngIf="email.invalid && email.touched" class="invalid-feedback">
+                Une adresse email valide est requise
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="telephone" class="form-label">
+                <i class="bi bi-telephone me-2"></i>
+                Téléphone *
+              </label>
+              <input
+                id="telephone" name="telephone"
+                class="form-control modern-input"
+                [(ngModel)]="newAdmin.telephone"
+                required
+                #telephone="ngModel"
+                placeholder="+212 6 XX XX XX XX"
+                [class.is-invalid]="telephone.invalid && telephone.touched">
+              <div *ngIf="telephone.invalid && telephone.touched" class="invalid-feedback">
+                Le numéro de téléphone est requis
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password" class="form-label">
+                <i class="bi bi-lock me-2"></i>
+                Mot de passe *
+              </label>
+              <input
+                id="password" name="password" type="password"
+                class="form-control modern-input"
+                [(ngModel)]="newAdmin.password"
+                required minlength="6"
+                #password="ngModel"
+                placeholder="Minimum 6 caractères"
+                [class.is-invalid]="password.invalid && password.touched">
+              <div *ngIf="password.invalid && password.touched" class="invalid-feedback">
+                <div *ngIf="password.errors?.['required']">Le mot de passe est requis</div>
+                <div *ngIf="password.errors?.['minlength']">Minimum 6 caractères requis</div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-create"
+              [disabled]="adminForm.invalid || loading">
+              <span *ngIf="loading" class="spinner me-2"></span>
+              <i *ngIf="!loading" class="bi bi-plus-circle me-2"></i>
+              {{ loading ? 'Création en cours...' : 'Créer l\'Administrateur' }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Liste des administrateurs modernisée -->
+      <div class="management-card list-card animate-slideInFromRight">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="header-content">
+            <h3>Liste des Administrateurs</h3>
+            <p>{{ admins.length }} administrateur(s) enregistré(s)</p>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <!-- Loading state -->
+          <div *ngIf="loadingList" class="loading-state">
+            <div class="spinner-modern"></div>
+            <p>Chargement des administrateurs...</p>
+          </div>
+
+          <!-- Empty state -->
+          <div *ngIf="!loadingList && admins.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <h4>Aucun administrateur</h4>
+            <p>Commencez par créer le premier compte administrateur</p>
+          </div>
+
+          <!-- Liste des administrateurs -->
+          <div *ngIf="!loadingList && admins.length > 0" class="admins-list">
+            <div *ngFor="let admin of admins; let i = index" 
+                 class="admin-item"
+                 [style.animation-delay]="i * 100 + 'ms'">
+              <div class="admin-avatar">
+                <span>{{ admin.prenom.charAt(0) }}{{ admin.nom.charAt(0) }}</span>
+              </div>
+              
+              <div class="admin-info">
+                <div class="admin-name">
+                  {{ admin.prenom }} {{ admin.nom }}
+                </div>
+                <div class="admin-details">
+                  <div class="detail-item">
+                    <i class="bi bi-envelope"></i>
+                    <span>{{ admin.email }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <i class="bi bi-telephone"></i>
+                    <span>{{ admin.telephone }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="admin-actions">
+                <button class="btn btn-outline-primary btn-sm" 
+                        (click)="editAdmin(admin)"
+                        title="Modifier">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm" 
+                        (click)="deleteAdmin(admin.id)"
+                        title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

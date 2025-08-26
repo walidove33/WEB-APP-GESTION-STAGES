@@ -1,0 +1,213 @@
+
+
+<app-navbar></app-navbar>
+
+<div class="form-layout">
+  <div class="form-container">
+    <!-- Header modernisé -->
+    <div class="form-header animate-fadeIn">
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="bi bi-plus-circle"></i>
+        </div>
+        <div class="header-text">
+          <h1>Nouvelle demande de stage</h1>
+          <p>Remplissez le formulaire ci-dessous pour soumettre votre demande</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire modernisé -->
+    <div class="form-card animate-scaleIn">
+      <form #stageForm="ngForm" name="stageForm" (ngSubmit)="onSubmit()" class="modern-form">
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="bi bi-building me-2"></i>
+            Informations sur l'entreprise
+          </h3>
+          
+          <div class="form-group">
+            <label for="entreprise" class="form-label">
+              <i class="bi bi-building me-2"></i>
+              Nom de l'entreprise *
+            </label>
+            <input
+              id="entreprise" name="entreprise"
+              type="text" class="form-control modern-input"
+              required
+              [(ngModel)]="stageData.entreprise"
+              #entreprise="ngModel"
+              [class.is-invalid]="entreprise.invalid && entreprise.touched"
+              placeholder="Nom de l'entreprise d'accueil">
+            <div *ngIf="entreprise.invalid && entreprise.touched" class="invalid-feedback">
+              Le nom de l'entreprise est requis
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="adresseEntreprise" class="form-label">
+              <i class="bi bi-geo-alt me-2"></i>
+              Adresse de l'entreprise
+            </label>
+            <input
+              id="adresseEntreprise" name="adresseEntreprise"
+              type="text" class="form-control modern-input"
+              [(ngModel)]="stageData.adresseEntreprise"
+              placeholder="Adresse complète de l'entreprise">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="telephoneEntreprise" class="form-label">
+                <i class="bi bi-telephone me-2"></i>
+                Téléphone de l'entreprise
+              </label>
+              <input
+                id="telephoneEntreprise" name="telephoneEntreprise"
+                type="tel" class="form-control modern-input"
+                [(ngModel)]="stageData.telephoneEntreprise"
+                placeholder="+212 5 XX XX XX XX">
+            </div>
+
+            <div class="form-group">
+              <label for="representantEntreprise" class="form-label">
+                <i class="bi bi-person-badge me-2"></i>
+                Représentant de l'entreprise
+              </label>
+              <input
+                id="representantEntreprise" name="representantEntreprise"
+                type="text" class="form-control modern-input"
+                [(ngModel)]="stageData.representantEntreprise"
+                placeholder="Nom du responsable">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="bi bi-mortarboard me-2"></i>
+            Informations académiques
+          </h3>
+          
+          <div class="form-group">
+            <label for="filiere" class="form-label">
+              <i class="bi bi-mortarboard me-2"></i>
+              Filière *
+            </label>
+            <select
+              id="filiere" name="filiere"
+              class="form-control modern-input"
+              required
+              [(ngModel)]="stageData.filiere"
+              #filiere="ngModel"
+              [class.is-invalid]="filiere.invalid && filiere.touched">
+              <option value="">Sélectionnez votre filière</option>
+              <option *ngFor="let fil of filieres" [value]="fil">
+                {{ fil.replace('_', ' ') | titlecase }}
+              </option>
+            </select>
+            <div *ngIf="filiere.invalid && filiere.touched" class="invalid-feedback">
+              Veuillez sélectionner votre filière
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="sujet" class="form-label">
+              <i class="bi bi-journal-text me-2"></i>
+              Sujet du stage *
+            </label>
+            <textarea
+              id="sujet" name="sujet"
+              class="form-control modern-input" rows="4"
+              required
+              [(ngModel)]="stageData.sujet"
+              #sujet="ngModel"
+              [class.is-invalid]="sujet.invalid && sujet.touched"
+              placeholder="Décrivez les objectifs et le contenu de votre stage..."></textarea>
+            <div *ngIf="sujet.invalid && sujet.touched" class="invalid-feedback">
+              Le sujet du stage est requis
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="bi bi-calendar-range me-2"></i>
+            Période du stage
+          </h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dateDebut" class="form-label">
+                <i class="bi bi-calendar-event me-2"></i>
+                Date de début *
+              </label>
+              <input
+                id="dateDebut" name="dateDebut"
+                type="date" class="form-control modern-input"
+                required
+                [(ngModel)]="stageData.dateDebut"
+                #dateDebut="ngModel"
+                [min]="getMinDate()"
+                [class.is-invalid]="dateDebut.invalid && dateDebut.touched">
+              <div *ngIf="dateDebut.invalid && dateDebut.touched" class="invalid-feedback">
+                La date de début est requise
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="dateFin" class="form-label">
+                <i class="bi bi-calendar-check me-2"></i>
+                Date de fin *
+              </label>
+              <input
+                id="dateFin" name="dateFin"
+                type="date" class="form-control modern-input"
+                required
+                [(ngModel)]="stageData.dateFin"
+                #dateFin="ngModel"
+                [min]="stageData.dateDebut || getMinDate()"
+                [class.is-invalid]="dateFin.invalid && dateFin.touched">
+              <div *ngIf="dateFin.invalid && dateFin.touched" class="invalid-feedback">
+                La date de fin est requise
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            routerLink="/student/dashboard"
+            class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Annuler
+          </button>
+          
+          <button
+            type="submit"
+            class="btn btn-primary btn-submit"
+            [disabled]="stageForm.invalid || loading">
+            <span *ngIf="loading" class="spinner me-2"></span>
+            <i *ngIf="!loading" class="bi bi-send me-2"></i>
+            {{ loading ? 'Envoi en cours...' : 'Soumettre la demande' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Aide -->
+    <div class="help-section animate-fadeIn" style="animation-delay: 0.3s">
+      <div class="help-card">
+        <div class="help-icon">
+          <i class="bi bi-info-circle"></i>
+        </div>
+        <div class="help-content">
+          <h4>Besoin d'aide ?</h4>
+          <p>Consultez le guide ou contactez le service des stages pour toute question concernant votre demande.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<div class="container py-4">
+  <h3>Modifier Encadrant</h3>
+
+  <form (ngSubmit)="submit()" #editForm="ngForm" class="mt-3">
+    <div class="mb-3">
+      <label class="form-label">Nom *</label>
+      <input name="nom" class="form-control" [(ngModel)]="editModel.nom" required />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Prénom *</label>
+      <input name="prenom" class="form-control" [(ngModel)]="editModel.prenom" required />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input name="email" type="email" class="form-control" [(ngModel)]="editModel.email" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Téléphone</label>
+      <input name="telephone" class="form-control" [(ngModel)]="editModel.telephone" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Spécialité</label>
+      <input name="specialite" class="form-control" [(ngModel)]="editModel.specialite" />
+    </div>
+
+    <button class="btn btn-primary me-2" [disabled]="loading">Enregistrer</button>
+    <button type="button" class="btn btn-secondary" (click)="cancel()">Annuler</button>
+  </form>
+</div>
