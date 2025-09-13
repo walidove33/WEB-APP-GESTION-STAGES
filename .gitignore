@@ -2,3 +2,4 @@
 "estbm-frontend/node_modules/" 
 "estbm-frontend/dist/" 
 "*.log" 
+.env
